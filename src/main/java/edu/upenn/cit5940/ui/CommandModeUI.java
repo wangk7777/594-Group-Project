@@ -82,8 +82,8 @@ public class CommandModeUI {
         	System.out.println("Usage: search <keyword>");
             return;
         }
-        List<String> keywords = Arrays.asList(parts).subList(1, parts.length);
-        List<ArticleDTO> results = service.searchByKeyword(keywords);
+        String keyword = String.join(" ", Arrays.asList(parts).subList(1, parts.length));
+        List<ArticleDTO> results = service.searchByKeyword(keyword);
  
         if (results.isEmpty()) {
             System.out.println("No articles found.");

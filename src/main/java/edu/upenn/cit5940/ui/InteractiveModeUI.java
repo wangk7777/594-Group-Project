@@ -99,8 +99,7 @@ public class InteractiveModeUI {
 	            return;
 	        }
 
-	        List<String> keywords = Arrays.asList(input.split("\\s+"));
-	        List<ArticleDTO> results = service.searchByKeyword(keywords);
+			List<ArticleDTO> results = service.searchByKeyword(input);
 
 	        System.out.println();
 	        System.out.println("Search results:");
