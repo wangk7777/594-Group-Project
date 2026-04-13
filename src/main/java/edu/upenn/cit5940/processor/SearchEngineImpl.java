@@ -14,12 +14,12 @@
 
 package edu.upenn.cit5940.processor;
 
-import business.datastructures.InvertedIndex;
-import business.datastructures.CustomTrie;
-import business.datastructures.DateIndex;
-import business.datastructures.WordFrequencyHeap;
-import data.Article;
-import data.DataRepository;
+import edu.upenn.cit5940.processor.datastructures.InvertedIndex;
+import edu.upenn.cit5940.processor.datastructures.CustomTrie;
+import edu.upenn.cit5940.processor.datastructures.DateIndex;
+import edu.upenn.cit5940.processor.datastructures.WordFrequencyHeap;
+import edu.upenn.cit5940.common.dto.Article;
+import edu.upenn.cit5940.datamanagement.DataRepository;
 import edu.upenn.cit5940.common.dto.ArticleDTO;
 
 import java.util.*;

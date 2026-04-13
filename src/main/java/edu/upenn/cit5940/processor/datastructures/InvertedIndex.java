@@ -16,7 +16,7 @@ package edu.upenn.cit5940.processor.datastructures;
 
 //import any classes you will need
 import java.util.*;
-import data.Article;
+import edu.upenn.cit5940.common.dto.Article;
 
 
 public class InvertedIndex {

@@ -14,7 +14,7 @@
 
 package edu.upenn.cit5940.processor.datastructures;
 
-import dto.ArticleDTO;
+import edu.upenn.cit5940.common.dto.ArticleDTO;
 
 import java.util.ArrayList;
 import java.util.List;
