@@ -1,4 +1,4 @@
-package edu.upenn.cit5940.datamanagement;
+package edu.upenn.cit5940.common.dto;
 
 import java.util.*;
 

@@ -17,6 +17,8 @@ package edu.upenn.cit5940.datamanagement;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import edu.upenn.cit5940.common.dto.Article;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
