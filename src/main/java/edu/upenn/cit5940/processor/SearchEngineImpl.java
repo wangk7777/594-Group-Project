@@ -18,9 +18,10 @@ import edu.upenn.cit5940.processor.datastructures.InvertedIndex;
 import edu.upenn.cit5940.processor.datastructures.CustomTrie;
 import edu.upenn.cit5940.processor.datastructures.DateIndex;
 import edu.upenn.cit5940.processor.datastructures.WordFrequencyHeap;
-import edu.upenn.cit5940.common.dto.Article;
+import edu.upenn.cit5940.datamanagement.Article;
 import edu.upenn.cit5940.datamanagement.DataRepository;
 import edu.upenn.cit5940.common.dto.ArticleDTO;
+import edu.upenn.cit5940.logging.SingletonLogger;
 
 import java.util.*;
 
@@ -61,8 +62,13 @@ public class SearchEngineImpl implements SearchEngineService{
     @Override
     public void initializeSystem(String articlesFilepath, String stopWordsFilepath) throws Exception {
 
+        SingletonLogger logger = SingletonLogger.getInstance();
+
         // Load stop words from the data layer
+        // Add logs
+        logger.info("Loading stop words from: " + stopWordsFilepath);
         this.stopWords = repository.loadStopWords(stopWordsFilepath);
+        logger.info(stopWords.size() + " stop words loaded");
 
         // Initialize data structures
         this.index = new InvertedIndex(this.stopWords);
@@ -70,8 +76,11 @@ public class SearchEngineImpl implements SearchEngineService{
         this.dateIndex = new DateIndex();
 
         // Load all articles from the data layer
+        // Add logs
+        logger.info("Loading articles from: " + articlesFilepath);
         this.articleDatabase = repository.loadAllArticles(articlesFilepath);
         this.totalArticlesLoaded = articleDatabase.size();
+        logger.info(totalArticlesLoaded + " articles parsed successfully");
 
         // Iterate through all articles and populate all data structures
         for (Article article : articleDatabase.values()) {
@@ -98,6 +107,8 @@ public class SearchEngineImpl implements SearchEngineService{
             // Add to date index
             dateIndex.addArticle(uri, date, title, body);
         }
+        // Add log
+        logger.info("All data structures initialized successfully");
 
     }
 
@@ -109,6 +120,9 @@ public class SearchEngineImpl implements SearchEngineService{
     @Override
     public List<ArticleDTO> searchByKeyword(String keyword) {
 
+        // Initialize logger
+        SingletonLogger logger = SingletonLogger.getInstance();
+
         // Initialize List variable
         List<ArticleDTO> searchResults = new ArrayList<>();
 
@@ -119,9 +133,13 @@ public class SearchEngineImpl implements SearchEngineService{
 
         // Trim the extra whitespaces and convert to lowercases
         String cleanKeyword = keyword.trim().toLowerCase();
+        // Add log
+        logger.info("User search: \"" + cleanKeyword + "\"");
 
         // Check if the input key word is a stop word
         if (stopWords.contains(cleanKeyword)) {
+            // Add log
+            logger.info("Search query is a stop word, returning empty results");
             return searchResults;
         }
 
@@ -130,6 +148,7 @@ public class SearchEngineImpl implements SearchEngineService{
 
         // Check if there is no matches found
         if (matchingUris == null || matchingUris.isEmpty()) {
+            logger.info("No articles found for query: \"" + cleanKeyword + "\"");
             return searchResults;
         }
 
@@ -149,7 +168,7 @@ public class SearchEngineImpl implements SearchEngineService{
             }
 
         }
-
+        logger.info("Search found " + searchResults.size() + " articles for query: \"" + cleanKeyword + "\"");
         return searchResults;
 
     }
@@ -162,15 +181,22 @@ public class SearchEngineImpl implements SearchEngineService{
     @Override
     public List<String> autocomplete(String prefix) {
 
+        // Initialize logger
+        SingletonLogger logger = SingletonLogger.getInstance();
+
         if (prefix == null || prefix.trim().isEmpty()) {
             return new ArrayList<>();
         }
 
         // Clean the prefix: lowercase
         String cleanPrefix = prefix.trim().toLowerCase();
+        logger.info("Autocomplete request for prefix: \"" + cleanPrefix + "\"");
 
-        // Call trie's autocomplete with max 10 results
-        return trie.autocomplete(cleanPrefix, 10);
+        List<String> results = trie.autocomplete(cleanPrefix, 10);
+
+        logger.info("Autocomplete returned " + results.size() + " suggestions");
+
+        return results;
     }
 
     /**
@@ -185,6 +211,9 @@ public class SearchEngineImpl implements SearchEngineService{
     @Override
     public List<Map.Entry<String, Integer>> getTopics(String period) {
 
+        // Initialize logger
+        SingletonLogger logger = SingletonLogger.getInstance();
+
         // Initialize the list to store the final results
         List<Map.Entry<String, Integer>> results = new ArrayList<>();
 
@@ -194,6 +223,7 @@ public class SearchEngineImpl implements SearchEngineService{
         }
 
         String cleanPeriod = period.trim();
+        logger.info("Topics request for period: " + cleanPeriod);
 
         // Count word frequencies for articles in this period
         Map<String, Integer> wordCounts = new HashMap<>();
@@ -245,6 +275,7 @@ public class SearchEngineImpl implements SearchEngineService{
             }
         }
 
+        logger.info("Topics returned " + results.size() + " trending words for period: " + cleanPeriod);
         return results;
     }
 
@@ -259,6 +290,8 @@ public class SearchEngineImpl implements SearchEngineService{
     public List<Map.Entry<String, Integer>> getTrends(
             String topic, String start, String end) {
 
+        SingletonLogger logger = SingletonLogger.getInstance();
+
         List<Map.Entry<String, Integer>> results = new ArrayList<>();
 
         if (topic == null || start == null || end == null) {
@@ -266,6 +299,7 @@ public class SearchEngineImpl implements SearchEngineService{
         }
 
         String cleanTopic = topic.trim().toLowerCase();
+        logger.info("Trends request for topic: \"" + cleanTopic + "\" from " + start + " to " + end);
 
         // Use a TreeMap to keep months in chronological order
         TreeMap<String, Integer> monthlyCounts = new TreeMap<>();
@@ -320,6 +354,7 @@ public class SearchEngineImpl implements SearchEngineService{
                     entry.getKey(), entry.getValue()));
         }
 
+        logger.info("Trends returned data for " + results.size() + " months");
         return results;
     }
 
@@ -332,11 +367,19 @@ public class SearchEngineImpl implements SearchEngineService{
     @Override
     public List<ArticleDTO> getArticlesByDateRange(String startDate, String endDate) {
 
+        SingletonLogger logger = SingletonLogger.getInstance();
+
         if (startDate == null || endDate == null) {
             return new ArrayList<>();
         }
 
-        return dateIndex.getArticlesByDateRange(startDate, endDate);
+        logger.info("Articles by date range: " + startDate + " to " + endDate);
+
+        List<ArticleDTO> results = dateIndex.getArticlesByDateRange(startDate, endDate);
+
+        logger.info("Found " + results.size() + " articles in date range");
+
+        return results;
     }
 
     /**
@@ -347,14 +390,19 @@ public class SearchEngineImpl implements SearchEngineService{
     @Override
     public ArticleDTO getArticleById(String uri) {
 
+        SingletonLogger logger = SingletonLogger.getInstance();
+
         // Validate that the uri is not null and contains non-whitespace characters
         if (uri == null || uri.trim().isEmpty()) {
             return null;
         }
 
+        logger.info("Article lookup by ID: " + uri.trim());
+
         Article article = articleDatabase.get(uri.trim());
 
         if (article == null) {
+            logger.info("No article found with ID: " + uri.trim());
             return null;
         }
 
@@ -371,6 +419,11 @@ public class SearchEngineImpl implements SearchEngineService{
      */
     @Override
     public String getStats() {
+
+        // Initialize logger and add log info
+        SingletonLogger logger = SingletonLogger.getInstance();
+        logger.info("Stats requested");
+
         return "Total articles loaded: " + totalArticlesLoaded;
     }
 

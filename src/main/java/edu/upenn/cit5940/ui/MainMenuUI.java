@@ -1,10 +1,6 @@
 package edu.upenn.cit5940.ui;
 import java.util.Scanner;
 
-
-
-
-
 /**
  * Handles the display and input of the main menu.
  */

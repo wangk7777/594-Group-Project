@@ -14,7 +14,6 @@
 
 package edu.upenn.cit5940.datamanagement;
 
-import edu.upenn.cit5940.common.dto.Article;
 import edu.upenn.cit5940.datamanagement.exceptions.CSVFormatException;
 
 import java.io.BufferedReader;
